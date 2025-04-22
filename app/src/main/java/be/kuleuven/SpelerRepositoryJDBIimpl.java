@@ -50,13 +50,13 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
   }
 
   @Override
-  public void addSpelerToTornooi(int tornooiId) {
+  public void addSpelerToTornooi(int tornooiId, int tennisvlaanderenId) {
     // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
     throw new UnsupportedOperationException("Unimplemented method 'addSpelerToTornooi'");
   }
 
   @Override
-  public void removeSpelerFromTornooi(int tornooiId) {
+  public void removeSpelerFromTornooi(int tornooiId, int tennisvlaanderenId) {
     // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
     throw new UnsupportedOperationException("Unimplemented method 'removeSpelerFromTornooi'");
   }

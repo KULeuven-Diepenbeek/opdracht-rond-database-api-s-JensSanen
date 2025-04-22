@@ -1,13 +1,17 @@
 package be.kuleuven;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import org.junit.Test;
-import static org.assertj.core.api.Assertions.*;
+
 
 public abstract class SpelerRepositoryTest {
-  protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite::memory:";
+  protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite:./testdb.sqlite";
   protected final String USER_OF_TEST_DB = "";
   protected final String PWD_OF_TEST_DB = "";
 
@@ -174,19 +178,52 @@ public abstract class SpelerRepositoryTest {
   @Test
   public void givenSpeler1enTornooi3_whenAddSpelerToTornooi_assertThatRowInSpeler_speelt_tornooi() {
     // Arrange
-
+    int tennisvlaanderenId = 1;
+    int tornooiId = 3;
     // Act
-
+    spelerRepository.addSpelerToTornooi(tornooiId, tennisvlaanderenId);
     // Assert
+    try {
+      ConnectionManager cm = new ConnectionManager(CONNECTIONSTRING_TO_TEST_DB, USER_OF_TEST_DB, PWD_OF_TEST_DB);
+      Statement statement = (Statement) cm.getConnection().createStatement();
+      var result = statement
+          .executeQuery("SELECT COUNT(*) as cnt FROM speler_speelt_tornooi WHERE speler = 1 and tornooi = 3;");
+      while (result.next()) {
+        assertThat(result.getInt("cnt")).isEqualTo(1);
+      }
+      statement.close();
+      cm.getConnection().commit();
+      cm.getConnection().close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+
   }
 
   @Test
   public void givenSpeler5enTornooi2_whenRemoveSpelerToTornooi_assertThatNoRowInSpeler_speelt_tornooi() {
     // Arrange
-
+    int tennisvlaanderenId = 5;
+    int tornooiId = 2;
     // Act
-
+    spelerRepository.removeSpelerFromTornooi(tornooiId, tennisvlaanderenId);
     // Assert
+    try {
+      ConnectionManager cm = new ConnectionManager(CONNECTIONSTRING_TO_TEST_DB, USER_OF_TEST_DB, PWD_OF_TEST_DB);
+      Statement statement = (Statement) cm.getConnection().createStatement();
+      var result = statement
+          .executeQuery("SELECT COUNT(*) as cnt FROM speler_speelt_tornooi WHERE speler = 5 and tornooi = 2;");
+      while (result.next()) {
+        assertThat(result.getInt("cnt")).isEqualTo(0);
+      }
+      statement.close();
+      cm.getConnection().commit();
+      cm.getConnection().close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
 }

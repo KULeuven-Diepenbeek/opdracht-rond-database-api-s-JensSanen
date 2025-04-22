@@ -1,10 +1,9 @@
 package be.kuleuven;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.sql.SQLException;
 
 import org.junit.After;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
