@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence 
+                                 http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="be.kuleuven.spelerhibernateTest">
+        <description>Speler JPA Test</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>be.kuleuven.Speler</class>
+        <class>be.kuleuven.Tornooi</class>
+        <class>be.kuleuven.Wedstrijd</class>
+        <properties>
+            <!-- MySQL driver -->
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <!-- Pas de URL, user en password aan naar jouw XAMPP configuratie -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/school"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            
+            <!-- Schema generatie: drop en create bij elke run -->
+            <!-- UNCOMMENT HIERONDER ALS JE MET import.sql WIL WERKEN -->
+            <!-- <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/> -->
+
+            <!-- Hibernate specifieke properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
+            <property name="hibernate.connection.autocommit" value="true"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.flushMode" value="ALWAYS"/>
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+        </properties>
+    </persistence-unit>
+</persistence>

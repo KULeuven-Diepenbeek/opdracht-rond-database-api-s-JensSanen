@@ -1,7 +1,5 @@
 package be.kuleuven;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.sql.SQLException;
 
 import javax.persistence.EntityManager;
@@ -9,6 +7,7 @@ import javax.persistence.Persistence;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 

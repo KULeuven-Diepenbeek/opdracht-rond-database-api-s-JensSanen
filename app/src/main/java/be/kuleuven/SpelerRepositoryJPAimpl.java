@@ -15,45 +15,105 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
 
   // Constructor
   SpelerRepositoryJPAimpl(EntityManager entityManager) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste constructor op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented constructor");
+    this.em = entityManager;
   }
 
   @Override
   public void addSpelerToDb(Speler speler) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    try {
+      em.getTransaction().begin();
+      em.persist(speler);
+      em.getTransaction().commit();   
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage(), e);
+    }
   }
 
   @Override
   public Speler getSpelerByTennisvlaanderenId(int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    Speler speler = em.find(Speler.class, tennisvlaanderenId);
+    if (speler == null) {
+      throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
+    }
+    return speler;
   }
 
   @Override
   public List<Speler> getAllSpelers() {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery<Speler> cq = cb.createQuery(Speler.class);
+    Root<Speler> root = cq.from(Speler.class);
+    cq.select(root);
+    return em.createQuery(cq).getResultList();
   }
 
   @Override
   public void updateSpelerInDb(Speler speler) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenId());
+
+    em.getTransaction().begin();
+    em.merge(speler);
+    em.getTransaction().commit();
   }
 
   @Override
   public void deleteSpelerInDb(int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    Speler speler = getSpelerByTennisvlaanderenId(tennisvlaanderenId);
+
+    em.getTransaction().begin();
+    em.remove(speler);
+    em.getTransaction().commit();
   }
 
   @Override
-  public String getHoogsteRankingVanSpeler(int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+  public String getHoogsteRankingVanSpeler(int tennisvlaanderenid) {
+      EntityTransaction tx = em.getTransaction();
+      try {
+          tx.begin();
+
+          Speler speler = getSpelerByTennisvlaanderenId(tennisvlaanderenid);
+
+          // Verzamel alle wedstrijden waar de speler in betrokken is
+          List<Wedstrijd> alleWedstrijden = speler.getWedstrijden();
+
+          // Sorteer op finale ascending
+          alleWedstrijden.sort(Comparator.comparingInt(Wedstrijd::getFinale));
+
+          if (alleWedstrijden.isEmpty()) {
+              return "Geen tornooigegevens gevonden voor speler met tennisvlaanderenid " + tennisvlaanderenid + ".";
+          }
+
+          Wedstrijd besteWedstrijd = alleWedstrijden.get(0);
+          int finale = besteWedstrijd.getFinale();
+          int winnaarId = besteWedstrijd.getWinnaarId();
+          int tornooiId = besteWedstrijd.getTornooiId();
+          Tornooi tornooi = em.find(Tornooi.class, tornooiId);
+          String clubnaam = tornooi.getClubnaam();
+
+          tx.commit();
+
+          if (winnaarId == tennisvlaanderenid) {
+              return "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de winst";
+          } else {
+              return switch (finale) {
+                  case 1 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de finale";
+                  case 2 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de halve finale";
+                  case 4 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de kwart finale";
+                  default -> throw new RuntimeException("Invalid finale number: " + finale);
+              };
+          }
+
+      } catch (InvalidSpelerException e) {
+          if (tx.isActive()) tx.rollback();
+          throw new RuntimeException(e);
+      } catch (Exception e) {
+          if (tx.isActive()) tx.rollback();
+          throw e;
+      } finally {
+          em.close();
+      }
   }
+
 
   @Override
   public void addSpelerToTornooi(int tornooiId, int tennisvlaanderenId) {
