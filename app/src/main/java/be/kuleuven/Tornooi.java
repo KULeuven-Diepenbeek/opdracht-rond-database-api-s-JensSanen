@@ -1,13 +1,31 @@
 package be.kuleuven;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.*;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+@Entity
+@Table(name = "tornooi")
 public class Tornooi {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
+  @Column(name = "clubnaam", nullable = false)
   private String clubnaam;
   // For relations
-  private ArrayList<Speler> ingeschreven_spelers;
-  private ArrayList<Wedstrijd> wedstrijden;
+  // Many-to-Many with Speler (mappedBy renamed to match Speler.tornooien)
+  @ManyToMany(mappedBy = "tornooien")
+  private List<Speler> ingeschrevenSpelers = new ArrayList<>();
+
+  // One-to-Many unidirectional for matches in this tournament
+  @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+  @JoinColumn(name = "tornooi", referencedColumnName = "id")
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  private List<Wedstrijd> wedstrijden = new ArrayList<>();
 
   public Tornooi() {
 
@@ -17,12 +35,16 @@ public class Tornooi {
     this.id = id;
     this.clubnaam = clubnaam;
     // For relations
-    this.ingeschreven_spelers = new ArrayList<>();
+    this.ingeschrevenSpelers = new ArrayList<>();
     this.wedstrijden = new ArrayList<>();
   }
 
   public int getId() {
     return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getClubnaam() {
@@ -67,16 +89,16 @@ public class Tornooi {
   }
 
   // For relations
-  public ArrayList<Speler> getIngeschrevenSpelers() {
-    return ingeschreven_spelers;
+  public List<Speler> getIngeschrevenSpelers() {
+    return ingeschrevenSpelers;
   }
 
-  public ArrayList<Wedstrijd> getWedstrijden() {
+  public List<Wedstrijd> getWedstrijden() {
     return wedstrijden;
   }
 
   public void addSpeler(Speler speler) {
-    this.ingeschreven_spelers.add(speler);
+    this.ingeschrevenSpelers.add(speler);
   }
 
   public void addWedstrijd(Wedstrijd wedstrijd) {
@@ -84,7 +106,7 @@ public class Tornooi {
   }
 
   public void deleteSpeler(int spelerId) {
-    ingeschreven_spelers.removeIf(speler -> speler.getTennisvlaanderenid() == spelerId);
+    ingeschrevenSpelers.removeIf(speler -> speler.getTennisvlaanderenId() == spelerId);
   }
 
   public void deleteWedstrijd(int wedstrijdId) {

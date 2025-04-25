@@ -38,6 +38,8 @@ dependencies {
     // JPA API
     implementation 'javax.persistence:javax.persistence-api:2.2'
 
+    implementation "com.github.gwenn:sqlite-dialect:0.1.1"
+    
     // This dependency is used by the application.
     implementation libs.guava
 }

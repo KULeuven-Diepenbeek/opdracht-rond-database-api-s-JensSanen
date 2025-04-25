@@ -17,8 +17,8 @@ CREATE TABLE speler(
 CREATE TABLE wedstrijd(
     id INT AUTO_INCREMENT PRIMARY KEY,
     tornooi INT NOT NULL,
-    speler1 INT NOT NULL,
-    speler2 INT NOT NULL,
+    speler1 INT ,
+    speler2 INT ,
     winnaar INT,
     score VARCHAR(200),
     finale INT NOT NULL,

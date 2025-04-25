@@ -17,8 +17,8 @@ CREATE TABLE speler(
 CREATE TABLE wedstrijd(
     id INTEGER PRIMARY KEY AUTOINCREMENT,  -- Fixed AUTOINCREMENT placement
     tornooi INTEGER NOT NULL,
-    speler1 INTEGER NOT NULL,
-    speler2 INTEGER NOT NULL,
+    speler1 INTEGER ,
+    speler2 INTEGER ,
     winnaar INTEGER,
     score TEXT,
     finale INTEGER NOT NULL,

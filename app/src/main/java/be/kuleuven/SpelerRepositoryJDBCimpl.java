@@ -25,7 +25,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       // Deze tweede try is een try-with-resources. Dit zorgt ervoor dat de prepared statement automatisch gesloten wordt ook als er een exception optreedt.
       try (PreparedStatement prepared = (PreparedStatement) connection 
               .prepareStatement("INSERT INTO speler (tennisvlaanderenid, naam, punten) VALUES (?, ?, ?);")) {
-          prepared.setInt(1, speler.getTennisvlaanderenid()); // First questionmark
+          prepared.setInt(1, speler.getTennisvlaanderenId()); // First questionmark
           prepared.setString(2, speler.getNaam()); // Second questionmark
           prepared.setInt(3, speler.getPunten()); // Third questionmark
           prepared.executeUpdate();
@@ -93,13 +93,13 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
   @Override
   public void updateSpelerInDb(Speler speler) {
     try {
-      getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenid()); // Check if speler exists
+      getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenId()); // Check if speler exists
 
       try (PreparedStatement prepared = (PreparedStatement) connection
               .prepareStatement("UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?;")) {
           prepared.setString(1, speler.getNaam()); 
           prepared.setInt(2, speler.getPunten());
-          prepared.setInt(3, speler.getTennisvlaanderenid());
+          prepared.setInt(3, speler.getTennisvlaanderenId());
           prepared.executeUpdate();
       } 
       connection.commit();
