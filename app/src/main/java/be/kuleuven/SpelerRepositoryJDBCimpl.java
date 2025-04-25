@@ -54,7 +54,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
           }
           
           if (foundSpeler == null) {
-              throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
+              throw new InvalidSpelerException(tennisvlaanderenId + "");
           }
           result.close();
       }
@@ -179,7 +179,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
           preparedTornooi.setInt(1, tornooiid);
           try (ResultSet result = preparedTornooi.executeQuery()) {
               if (!result.next()) {
-                  throw new InvalidTornooiException("Invalid Tornooi met identification: " + tornooiid);
+                  throw new InvalidTornooiException(tornooiid + "");
               }
           }
       }
