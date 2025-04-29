@@ -25,7 +25,7 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
       em.persist(speler);
       em.getTransaction().commit();   
     } catch (Exception e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new RuntimeException("A PRIMARY KEY constraint failed", e);
     }
   }
 
@@ -33,7 +33,7 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
   public Speler getSpelerByTennisvlaanderenId(int tennisvlaanderenId) {
     Speler speler = em.find(Speler.class, tennisvlaanderenId);
     if (speler == null) {
-      throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
+      throw new InvalidSpelerException(tennisvlaanderenId + "");
     }
     return speler;
   }
@@ -67,51 +67,51 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
 
   @Override
   public String getHoogsteRankingVanSpeler(int tennisvlaanderenid) {
-      EntityTransaction tx = em.getTransaction();
-      try {
-          tx.begin();
+    EntityTransaction tx = em.getTransaction();
+    try {
+      tx.begin();
 
-          Speler speler = getSpelerByTennisvlaanderenId(tennisvlaanderenid);
+      Speler speler = getSpelerByTennisvlaanderenId(tennisvlaanderenid);
 
-          // Verzamel alle wedstrijden waar de speler in betrokken is
-          List<Wedstrijd> alleWedstrijden = speler.getWedstrijden();
+      // Verzamel alle wedstrijden waar de speler in betrokken is
+      List<Wedstrijd> alleWedstrijden = speler.getWedstrijden();
 
-          // Sorteer op finale ascending
-          alleWedstrijden.sort(Comparator.comparingInt(Wedstrijd::getFinale));
+      // Sorteer op finale ascending
+      alleWedstrijden.sort(Comparator.comparingInt(Wedstrijd::getFinale));
 
-          if (alleWedstrijden.isEmpty()) {
-              return "Geen tornooigegevens gevonden voor speler met tennisvlaanderenid " + tennisvlaanderenid + ".";
-          }
-
-          Wedstrijd besteWedstrijd = alleWedstrijden.get(0);
-          int finale = besteWedstrijd.getFinale();
-          int winnaarId = besteWedstrijd.getWinnaarId();
-          int tornooiId = besteWedstrijd.getTornooiId();
-          Tornooi tornooi = em.find(Tornooi.class, tornooiId);
-          String clubnaam = tornooi.getClubnaam();
-
-          tx.commit();
-
-          if (winnaarId == tennisvlaanderenid) {
-              return "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de winst";
-          } else {
-              return switch (finale) {
-                  case 1 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de finale";
-                  case 2 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de halve finale";
-                  case 4 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de kwart finale";
-                  default -> throw new RuntimeException("Invalid finale number: " + finale);
-              };
-          }
-
-      } catch (InvalidSpelerException e) {
-          if (tx.isActive()) tx.rollback();
-          throw new RuntimeException(e);
-      } catch (Exception e) {
-          if (tx.isActive()) tx.rollback();
-          throw e;
-      } finally {
-          em.close();
+      if (alleWedstrijden.isEmpty()) {
+        return "Geen tornooigegevens gevonden voor speler met tennisvlaanderenid " + tennisvlaanderenid + ".";
       }
+
+      Wedstrijd besteWedstrijd = alleWedstrijden.get(0);
+      int finale = besteWedstrijd.getFinale();
+      int winnaarId = besteWedstrijd.getWinnaarId();
+      int tornooiId = besteWedstrijd.getTornooiId();
+      Tornooi tornooi = em.find(Tornooi.class, tornooiId);
+      String clubnaam = tornooi.getClubnaam();
+
+      tx.commit();
+
+      if (winnaarId == tennisvlaanderenid) {
+        return "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de winst";
+      } else {
+        return switch (finale) {
+          case 1 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de finale";
+          case 2 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de halve finale";
+          case 4 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de kwart finale";
+          default -> throw new RuntimeException("Invalid finale number: " + finale);
+        };
+      }
+
+    } catch (InvalidSpelerException e) {
+      if (tx.isActive()) tx.rollback();
+        throw new RuntimeException(e);
+    } catch (Exception e) {
+      if (tx.isActive()) tx.rollback();
+        throw e;
+    } finally {
+      em.close();
+    }
   }
 
 

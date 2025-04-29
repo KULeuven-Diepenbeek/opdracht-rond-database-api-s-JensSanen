@@ -40,7 +40,7 @@ public abstract class SpelerRepositoryTest {
     });
     // Assert
     assertThat(thrown).isInstanceOf(RuntimeException.class)
-        .hasMessageContaining(" A PRIMARY KEY constraint failed");
+        .hasMessageContaining("A PRIMARY KEY constraint failed");
   }
 
   @Test

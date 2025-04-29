@@ -58,9 +58,10 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
           }
           result.close();
       }
-    connection.commit();
+    
+      connection.commit();
 
-    } catch (InvalidSpelerException | SQLException e) {
+    } catch (SQLException e) {
       throw new RuntimeException(e);
     }
     return foundSpeler;
@@ -126,47 +127,48 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
 
   @Override
   public String getHoogsteRankingVanSpeler(int tennisvlaanderenid) {
-      try {
-          getSpelerByTennisvlaanderenId(tennisvlaanderenid); 
+    try {
+      getSpelerByTennisvlaanderenId(tennisvlaanderenid); 
 
-          String query = """
-              SELECT wedstrijd.finale, wedstrijd.winnaar, tornooi.clubnaam
-              FROM wedstrijd
-              INNER JOIN speler AS speler1 ON speler1.tennisvlaanderenid = wedstrijd.speler1
-              INNER JOIN speler AS speler2 ON speler2.tennisvlaanderenid = wedstrijd.speler2
-              INNER JOIN tornooi ON tornooi.id = wedstrijd.tornooi
-              WHERE wedstrijd.speler1 = ? OR wedstrijd.speler2 = ?
-              ORDER BY wedstrijd.finale ASC
-              LIMIT 1;
-          """;
+      String query = 
+        """
+          SELECT wedstrijd.finale, wedstrijd.winnaar, tornooi.clubnaam
+          FROM wedstrijd
+          INNER JOIN speler AS speler1 ON speler1.tennisvlaanderenid = wedstrijd.speler1
+          INNER JOIN speler AS speler2 ON speler2.tennisvlaanderenid = wedstrijd.speler2
+          INNER JOIN tornooi ON tornooi.id = wedstrijd.tornooi
+          WHERE wedstrijd.speler1 = ? OR wedstrijd.speler2 = ?
+          ORDER BY wedstrijd.finale ASC
+          LIMIT 1;
+        """;
 
-          try (PreparedStatement prepared = connection.prepareStatement(query)) {
-              prepared.setInt(1, tennisvlaanderenid);
-              prepared.setInt(2, tennisvlaanderenid); 
-              ResultSet result = prepared.executeQuery();
+      try (PreparedStatement prepared = connection.prepareStatement(query)) {
+        prepared.setInt(1, tennisvlaanderenid);
+        prepared.setInt(2, tennisvlaanderenid); 
+        ResultSet result = prepared.executeQuery();
 
-              if (result.next()) {
-                  int finaleNumber = result.getInt("finale");
-                  int winnaar = result.getInt("winnaar");
-                  String clubnaam = result.getString("clubnaam");
+        if (result.next()) {
+          int finaleNumber = result.getInt("finale");
+          int winnaar = result.getInt("winnaar");
+          String clubnaam = result.getString("clubnaam");
 
-                  if (winnaar == tennisvlaanderenid) {
-                      return "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de winst";
-                  } else {
-                      return switch (finaleNumber) {
-                          case 1 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de finale";
-                          case 2 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de halve finale";
-                          case 4 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de kwart finale";
-                          default -> throw new RuntimeException("Invalid finale number: " + finaleNumber);
-                      };
-                  }
-              } else {
-                  return "Geen tornooigegevens gevonden voor speler met tennisvlaanderenid " + tennisvlaanderenid + ".";   
-              }
+          if (winnaar == tennisvlaanderenid) {
+            return "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de winst";
+          } else {
+            return switch (finaleNumber) {
+              case 1 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de finale";
+              case 2 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de halve finale";
+              case 4 -> "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de kwart finale";
+              default -> throw new RuntimeException("Invalid finale number: " + finaleNumber);
+            };
           }
-      } catch (InvalidSpelerException | SQLException e) {
-          throw new RuntimeException(e);
+        } else {
+          return "Geen tornooigegevens gevonden voor speler met tennisvlaanderenid " + tennisvlaanderenid + ".";   
+        }
       }
+    } catch (InvalidSpelerException | SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 
